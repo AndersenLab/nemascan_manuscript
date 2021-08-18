@@ -175,15 +175,6 @@ VE.plot$nQTL <- factor(VE.plot$nQTL, levels = c("1 QTL","5 QTL","10 QTL","25 QTL
 C <-  ggplot(VE.plot, mapping = aes(x = designation, y = Simulated.QTL.VarExp*100, colour = designation)) + 
   theme_bw(base_size = 11) +
   geom_boxplot(outlier.alpha = 0.1) + 
-  # geom_jitter(alpha = 0.5, size = 1, position = position_quasirandom()) + 
-  # geom_label_repel(data = meds, 
-  #                 aes(x = designation, 
-  #                     y = median.var.exp, 
-  #                     label = paste0(round(median.var.exp,2),"%")), 
-  #                 colour = "black", size = 2, box.padding = 1, point.padding = 0.45) + 
-  # geom_point(data = meds, 
-  #            aes(x = designation, 
-  #                y = median.var.exp), colour = "black") + 
   facet_grid(nQTL~h2, scales = "free", space = "free") + 
   scale_colour_manual(values = c("royalblue","dodgerblue","cadetblue4","darkred"), name = "Association Type") + 
   theme(panel.grid = element_blank(),
