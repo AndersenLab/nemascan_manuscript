@@ -50,7 +50,6 @@ supp.figure.1 <- dat %>%
   ggplot(., mapping = aes(x = abs(Effect))) +
   theme_bw() + 
   geom_histogram() + 
-  # scale_fill_manual(values = nationalparkcolors::park_palettes$RockyMountains[c(1,2)]) + 
   facet_grid(nQTL~., scales = "free") + 
   theme(legend.position = "none")+
   labs(x = "Assigned QTL Effect Magnitude",
