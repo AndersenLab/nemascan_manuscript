@@ -183,6 +183,48 @@ C <-  ggplot(VE.plot, mapping = aes(x = designation, y = Simulated.QTL.VarExp*10
         axis.title.x = element_blank()) + 
   labs(y = "Simulated Variance Explained by QTL (%)")
 
+#####################
+# STATISTICS FOR 1C #
+#####################
+var.exp.stats.nested <- VE.plot %>%
+  dplyr::group_by(h2, nQTL) %>%
+  tidyr::nest()
+
+Var.Exp.TukeyHSD <- function(data, h2, nQTL){
+  stat <- aov(data = data, formula = Simulated.QTL.VarExp*100 ~ designation)
+  TukeyHSD(stat)
+}
+purrr::pmap(list(var.exp.stats.nested$data,
+                 var.exp.stats.nested$h2,
+                 var.exp.stats.nested$nQTL),
+            Var.Exp.TukeyHSD)
+
+
+
+var.exp.stats.nested.designations <- VE.plot %>%
+  dplyr::group_by(designation) %>%
+  tidyr::nest()
+Var.Exp.TukeyHSD.Designation <- function(data, designation){
+  stat <- aov(data = data, formula = Simulated.QTL.VarExp*100 ~ h2 + nQTL)
+  tukey <- TukeyHSD(stat)
+  data.frame(tukey[[1]]) %>%
+    dplyr::mutate(contrast = row.names(.)) %>%
+    dplyr::select(p.adj, contrast) %>%
+    tidyr::separate(contrast, c("level1","level2"), sep = "-") %>%
+    tidyr::pivot_wider(names_from = level2, values_from = p.adj) %>%
+    dplyr::mutate(designation = designation)
+  
+  data.frame(tukey[[2]]) %>%
+    dplyr::mutate(contrast = row.names(.)) %>%
+    dplyr::select(p.adj, contrast) %>%
+    tidyr::separate(contrast, c("level1","level2"), sep = "-") %>%
+    tidyr::pivot_wider(names_from = level2, values_from = p.adj)%>%
+    dplyr::mutate(designation = designation)
+}
+purrr::map2(var.exp.stats.nested.designations$data,
+            var.exp.stats.nested.designations$designation,
+            Var.Exp.TukeyHSD.Designation)
+
 
 #################
 ### Figure 1 ###
@@ -205,3 +247,44 @@ ABC <- cowplot::plot_grid(AB.2,
                             guides(colour = guide_legend(nrow = 2)), nrow = 2, 
                           rel_heights = c(1,2), labels = c("","C"))
 ggsave(plot = ABC + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.1.png", height = 6, width = 7.5)
+
+
+# Summary Tables of Plotted Values
+# Figure 1A
+designations %>%
+  dplyr::mutate(Detected = Detected.CV + CV.Not.Significant.In.Interval + False.Discovery,
+                Simulated = Detected.CV + CV.Not.Significant.In.Interval + Missed.CV) %>%
+  dplyr::filter(Simulated != 0) %>%
+  dplyr::mutate(Power = Detected.CV/Simulated,
+                Artefact.Rate = False.Discovery/Detected,
+                Detected.CV.NS.Rate = CV.Not.Significant.In.Interval/Detected) %>%
+  dplyr::filter(Detected != 0) %>%
+  dplyr::group_by(nQTL, h2) %>%
+  dplyr::summarise(mean.Power = mean(Power),
+                   sd.Power = sd(Power),
+                   value = paste(round(mean.Power,2),
+                                 round(sd.Power,2),
+                                 sep = " ± ")) %>%
+  dplyr::select(nQTL, h2, value) %>%
+  tidyr::pivot_wider(names_from = h2, values_from = value)
+
+
+# Figure 1B
+designations %>%
+  dplyr::mutate(Detected = Detected.CV + CV.Not.Significant.In.Interval + False.Discovery,
+                Simulated = Detected.CV + CV.Not.Significant.In.Interval + Missed.CV) %>%
+  dplyr::filter(Simulated != 0) %>%
+  dplyr::mutate(Power = Detected.CV/Simulated,
+                Artefact.Rate = False.Discovery/Detected,
+                Detected.CV.NS.Rate = CV.Not.Significant.In.Interval/Detected) %>%
+  dplyr::filter(Detected != 0) %>%
+  dplyr::group_by(nQTL, h2) %>%
+  dplyr::summarise(mean.AR = mean(Artefact.Rate),
+                   sd.AR = sd(Artefact.Rate),
+                   value = paste(round(mean.AR,2),
+                                 round(sd.AR,2),
+                                 sep = " ± ")) %>%
+  dplyr::select(nQTL, h2, value) %>%
+  tidyr::pivot_wider(names_from = h2, values_from = value)
+
+
