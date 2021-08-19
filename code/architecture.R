@@ -9,7 +9,7 @@ setwd(paste0(dirname(rstudioapi::getActiveDocumentContext()$path),"/.."))
 ####################################
 
 # Mapping Results, Default settings: Group = 1000 bp, CI = +150 markers
-load(file = "data/NemaScan_Performance.Architecture.1000.150.20210513.20210517.RData")
+load(file = "data/File_S2.RData")
 dat.group1000.150.aggregate.WI <- simulation.metrics.df %>%
   tidyr::separate(col = sim,
                   into = c("nQTL","Rep","h2","MAF","effect_range","strain_set"), 

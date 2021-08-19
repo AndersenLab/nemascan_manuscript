@@ -6,7 +6,7 @@ setwd(paste0(dirname(rstudioapi::getActiveDocumentContext()$path),"/.."))
 ### Algorithm Simulation Data ###
 #################################
 
-load(file = "data/NemaScan_Performance.Algorithm.Sims.20210510.RData") # EMMA, Algorithm Sims
+load(file = "data/File_S1.RData") # EMMA, Algorithm Sims
 dat <- simulation.metrics.df %>%
   tidyr::separate(col = sim,
                   into = c("nQTL","Rep","h2","MAF","effect_range","strain_set"), 
