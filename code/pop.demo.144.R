@@ -57,3 +57,109 @@ supp.table.5 <- power.var.exp.demo %>%
   tidyr::pivot_wider(names_from = Sim.Var.Exp.Bin, values_from = power)
 colnames(supp.table.5) <- c("Population Type",colnames(supp.table.5)[2:length(colnames(supp.table.5))])
 write.csv(supp.table.5, "tables/supplemental.table.5.csv", quote = F, row.names = F)
+
+
+#############################
+### Figure   ###
+#############################
+power.var.exp.demo %<>%
+  dplyr::mutate(max = mean.Power + sd.Power,
+                min = mean.Power - sd.Power,
+                sd.Power.max = if_else(max > 1, 
+                                       true = 1 - mean.Power,
+                                       false = sd.Power),
+                sd.Power.min = if_else(min < 0, 
+                                       true = mean.Power,
+                                       false = sd.Power)) %>%
+  dplyr::mutate(detail = paste0(population.group," Strains; n = 144"))
+A.3 <- ggplot(power.var.exp.demo, mapping = aes(x = reorder(Sim.Var.Exp.Bin, bottom), y = mean.Power, 
+                                                fill = detail,
+                                                group = detail)) + 
+  theme_bw(base_size = 11) + 
+  geom_hline(yintercept = 0.8, linetype = 4, alpha = 0.2) + 
+  geom_line(aes(colour = detail),position = position_dodge(width = 0.5)) +
+  scale_size_manual(values = c(1,0.5,0.5), guide = "none") + 
+  scale_colour_manual(values = c("blue","darkgreen","orange"), name = "Population Composition") +
+  geom_errorbar(data = power.var.exp.demo,
+                width = 1, alpha = 0.8,
+                mapping = aes(y = mean.Power, ymax = mean.Power+sd.Power.max, ymin = mean.Power-sd.Power.min, colour = detail),
+                position=position_dodge(width=0.5)) +
+  geom_point(position = position_dodge(width = 0.5), shape = 21) + 
+  scale_fill_manual(values = c("blue","darkgreen","orange"), name = "Population Composition") +
+  ylim(c(0,1)) + 
+  theme(legend.position = "right",
+        legend.title = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.title.x = element_text()) +
+  labs(x = "Variance Explained by Simulated QTL (%)",
+       y = "Power")
+
+
+MAF.by.VarExp.Bin.demo <- n144.df %>%
+  dplyr::filter(algorithm == "MIXED",
+                h2 == 0.8) %>%
+  droplevels() %>%
+  dplyr::mutate(designation = case_when(Simulated == TRUE & Detected == TRUE & aboveBF == TRUE ~ "Detected.CV",
+                                        Simulated == TRUE & Detected == FALSE & aboveBF == FALSE ~ "Missed.CV",
+                                        Simulated == TRUE & Detected == TRUE & aboveBF == FALSE ~ "CV.Not.Significant.In.Interval",
+                                        Simulated == FALSE & Detected == TRUE & aboveBF == TRUE ~ "False.Discovery")) %>%
+  dplyr::filter(designation != "False.Discovery") %>%
+  dplyr::mutate(Sim.Var.Exp.Bin = cut(Simulated.QTL.VarExp, breaks = unique(c(seq(0,0.1,by = 0.025),
+                                                                              seq(0.1,0.9,by = 0.1)))),
+                Sim.Var.Exp.Bin = gsub(as.character(Sim.Var.Exp.Bin), pattern = "\\(", replacement = "") %>%
+                  gsub(., pattern = "\\]", replacement = "") %>%
+                  gsub(., pattern = ",", replacement = "-")) %>%
+  tidyr::separate(col = Sim.Var.Exp.Bin, into = c("top","bottom"), sep = "-", remove = FALSE) %>%
+  dplyr::mutate(top = as.numeric(top)*100,
+                bottom = as.numeric(bottom)*100) %>%
+  tidyr::unite("Sim.Var.Exp.Bin", top:bottom, sep = "-", remove = FALSE)
+B.3 <- ggplot(MAF.by.VarExp.Bin.demo, mapping = aes(x = reorder(Sim.Var.Exp.Bin,bottom), 
+                                                    y = Frequency,
+                                                    fill = population.group)) + 
+  theme_bw(base_size = 11) + 
+  geom_boxplot(outlier.alpha = 0.05, position=position_dodge(0.92)) +
+  # geom_jitter(shape = 21 ,position=position_dodge()) +
+  scale_fill_manual(values = c("blue","darkgreen","orange"), name = "Population Composition") + 
+  theme(legend.position = "none",
+        legend.title = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  labs(x = "Variance Explained by Simulated QTL (%)",
+       y = "MAF")
+
+
+AF.dists.demo <- n144.df %>%
+  dplyr::filter(Simulated == TRUE,
+                h2 == 0.8) %>%
+  dplyr::mutate(detail = paste0(population.group," Strains; n = 144")) %>%
+  dplyr::mutate(detail = as.factor(detail)) %>%
+  dplyr::rename(`Minor Allele Frequency` = Frequency, `Variance Explained by Simulated QTL (%)` = Simulated.QTL.VarExp) %>%
+  dplyr::select(`Minor Allele Frequency`, `Variance Explained by Simulated QTL (%)`, detail) %>%
+  tidyr::pivot_longer(cols = c(`Minor Allele Frequency`, `Variance Explained by Simulated QTL (%)`), names_to = "metric", values_to = "value")
+C.3 <- AF.dist.plot.demo <- AF.dists.demo %>%
+  dplyr::filter(metric == "Minor Allele Frequency") %>%
+  ggplot(., mapping = aes(x = value, colour = detail)) +
+  geom_density(size = 0.4, adjust = 0.5) +
+  theme_bw(base_size = 11) +
+  scale_colour_manual(values = c("blue","darkgreen","orange"), name = "Population Composition") +
+  # facet_grid(.~metric, scales = "free_x") +
+  theme(legend.position = "none",
+        legend.title = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank()) +
+  labs(y = "Number of QTL",
+       x = "Minor Allele Frequency")
+
+
+A.legend <- cowplot::get_legend(A.3)
+pre.3 <- cowplot::plot_grid(A.3 + theme(axis.text.x = element_blank(),
+                                        axis.title.x = element_blank(),
+                                        axis.ticks.x = element_blank(),
+                                        legend.position = "none"), 
+                            B.3, 
+                            C.3, ncol = 1, align = 'v', axis = 'l', labels = "AUTO")
+fig3 <- cowplot::ggdraw(pre.3 + cowplot::draw_plot(A.legend, .5, .8, .6, 0))
+ggsave(fig3, filename = "plots/figure.3.png", width = 7.5, height = 7)
