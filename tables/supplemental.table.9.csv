@@ -1,0 +1,5 @@
+"","Trait Heritability","Strain Set","Simulated Divergence","Simulated Chromosome Region","Group 1","Group 2","n1","n2","Adjusted p-value","Significance"
+"1","0.5","Divergent","Non-Hyperdivergent","Center","I","III",85,103,0.00366,"**"
+"2","0.5","Divergent","Non-Hyperdivergent","Center","III","IV",103,86,0.00366,"**"
+"3","0.5","Divergent","Non-Hyperdivergent","Center","III","V",103,104,0.00187,"**"
+"4","0.5","Divergent","Non-Hyperdivergent","Center","III","X",103,63,0.01027,"*"

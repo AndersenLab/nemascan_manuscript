@@ -43,7 +43,6 @@ dat <- simulation.metrics.df %>%
 #############################
 ### Supplemental Figure 1 ###
 #############################
-
 supp.figure.1 <- dat %>%
   dplyr::filter(Simulated == TRUE) %>%
   dplyr::mutate(nQTL = paste0(nQTL," QTL")) %>%
@@ -164,9 +163,9 @@ supp.figure.2 <- cowplot::plot_grid(plots, legends, ncol = 1, rel_heights = c(9,
 ggsave(supp.figure.2 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/supp.fig.2.png", height = 8, width = 8)
 
 
-#####################
-### Supp Table 2  ###
-#####################
+#############################
+### Supplemental Table 2  ###
+#############################
 power.FDR.stats <- designations %>%
   dplyr::mutate(Detected = Detected.CV + CV.Not.Significant.In.Interval + False.Discovery, 
                 Simulated = Detected.CV + CV.Not.Significant.In.Interval + Missed.CV,
@@ -225,9 +224,9 @@ colnames(algorithm.posthoc.tests.power) <- c("Trait Heritability","Number of Sim
 write.csv(algorithm.posthoc.tests.power, "tables/supplemental.table.2.csv", row.names = F, quote = F)
 
 
-#####################
-### Supp Table 3  ###
-#####################
+#############################
+### Supplemental Table 3  ###
+#############################
 KW.FDR.results <- list()
 KW.FDR.dunn.tests <- list()
 for(i in 1:length(power.FDR.stats$data)){
