@@ -53,7 +53,6 @@ power.var.exp <- designations %>%
 #############################
 ### Supplemental Figure 3 ###
 #############################
-
 AF.dists <- dat.population.features %>%
   dplyr::filter(Simulated == TRUE,
                 !duplicated(QTL)) %>%
@@ -66,9 +65,8 @@ AF.dist.plot <- AF.dists %>%
   tidyr::unite("detail", c(pop.type, pop.size), remove = F, sep = " Strains; n = ") %>%
   ggplot(., mapping = aes(x = Frequency, fill = detail)) +
   geom_density(alpha = 0.6, adjust = 0.8, position = "stack") + 
-  theme_bw() +
+  theme_bw(base_size = 12) +
   scale_fill_manual(values = pop.size.pal.B, name = "Sample Size") + 
-  # facet_wrap(.~pop.type.2) + 
   theme(legend.position = "right",
         legend.title = element_blank(),
         panel.grid.major = element_blank(), 
@@ -78,7 +76,7 @@ AF.dist.plot <- AF.dists %>%
   scale_x_continuous(breaks = seq(0,0.5,0.1)) +
   labs(x = "Minor Allele Frequency",
        y = "Smoothed Density")
-ggsave(AF.dist.plot, filename = "plots/supp.fig.3.png", width = 8, height = 3)
+ggsave(AF.dist.plot, filename = "plots/supp.fig.3.png", width = 7.5, height = 3)
 
 
 #############################
