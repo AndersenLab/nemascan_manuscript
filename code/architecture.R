@@ -246,7 +246,7 @@ ABC <- cowplot::plot_grid(AB.2,
                             theme(legend.position = "bottom") + 
                             guides(colour = guide_legend(nrow = 2)), nrow = 2, 
                           rel_heights = c(1,2), labels = c("","C"))
-ggsave(plot = ABC + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.1.png", height = 6, width = 7.5)
+ggsave(plot = ABC + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.1.jpeg", height = 6, width = 7.5)
 
 
 # Summary Tables of Plotted Values

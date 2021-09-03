@@ -2,6 +2,7 @@ require(tidyverse)
 require(RColorBrewer)
 require(magrittr)
 require(ggtree)
+require(ggplotify)
 setwd(paste0(dirname(rstudioapi::getActiveDocumentContext()$path),"/.."))
 
 #########################################################################################################
@@ -106,7 +107,7 @@ stacked.trees <- cowplot::plot_grid(gg.divergent.tree +
                                       theme(plot.background = element_rect(fill = "white",colour = NA)), 
                                     ncol = 1, labels = c("B","C"))
 fig4 <- cowplot::plot_grid(combined.performance.figure,stacked.trees, ncol = 2, labels = c("A",""), rel_widths = c(1.8,1))
-ggsave(fig4 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.4.png", width = 7.5, height = 4)
+ggsave(fig4 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.4.jpeg", width = 7.5, height = 4)
 
 
 ##############

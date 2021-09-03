@@ -53,7 +53,7 @@ supp.figure.1 <- dat %>%
   theme(legend.position = "none")+
   labs(x = "Assigned QTL Effect Magnitude",
        y = "Frequency of Causal Variants")
-ggsave(supp.figure.1, filename = "plots/supp.fig.1.png", height = 6, width = 6)
+ggsave(supp.figure.1, filename = "plots/supp.fig.1.jpeg", height = 6, width = 6)
 
 
 #############################
@@ -160,7 +160,7 @@ plots <- cowplot::plot_grid(algorithm.A + theme(legend.position = "none",
                             ncol = 1, rel_heights = c(0.9,1))
 legends <- cowplot::get_legend(algorithm.A)
 supp.figure.2 <- cowplot::plot_grid(plots, legends, ncol = 1, rel_heights = c(9,1))
-ggsave(supp.figure.2 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/supp.fig.2.png", height = 8, width = 8)
+ggsave(supp.figure.2 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/supp.fig.2.jpeg", height = 8, width = 8)
 
 
 #############################
