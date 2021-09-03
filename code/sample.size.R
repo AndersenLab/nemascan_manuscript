@@ -139,8 +139,10 @@ A.plain <- cowplot::plot_grid(A + theme(legend.position = "none"))
 fig2 <- cowplot::ggdraw(A.plain + cowplot::draw_plot(A.legend, .5, .5, .6, 0))
 ggsave(fig2, filename = "plots/figure.2.jpeg", width = 7.5, height = 4)
 
-# Summary Tables of Plotted Values
-# Figure 2
+
+################
+### Table 1  ###
+################
 overall.metrics <- dat.population.features %>%
   dplyr::filter(algorithm == "MIXED") %>%
   droplevels() %>%
@@ -169,4 +171,6 @@ sample.size.performance.table <- overall.metrics %>%
   dplyr::mutate(Power = paste(round(mean.Power,2), round(sd.Power,2), sep = " ± "),
                 FDR = paste(round(mean.FDR,2), round(sd.FDR,2), sep = " ± ")) %>%
   dplyr::select(pop.size, Power, FDR)
-sample.size.performance.table
+colnames(sample.size.performance.table) <- c("Sample Size","Power","FDR")
+write.csv(sample.size.performance.table, "tables/table.1.csv", quote = F, row.names = F)
+
