@@ -48,6 +48,19 @@ nQTL.pal <- wes_palette("Darjeeling2", 5)
 options(dplyr.summarise.inform = FALSE)
 
 
+gamma.supp <- dat.group1000.150.aggregate.WI %>%
+  dplyr::filter(algorithm == "MIXED",
+                Simulated == TRUE) %>%
+  ggplot(., mapping = aes(x = Simulated.QTL.VarExp*100)) + 
+  theme_bw() + 
+  geom_histogram(bins = 100) + 
+  facet_grid(nQTL ~ h2, scales = "free_y") + 
+  theme(panel.grid = element_blank()) + 
+  labs(x = "Simulated Variance Explained by QTL (%)",
+       y = "Frequency")
+ggsave(gamma.supp, filename = "plots/supp.fig.3.jpeg", height = 5, width = 5)
+
+
 
 designations <- dat.group1000.150.aggregate.WI %>%
   dplyr::filter(algorithm == "MIXED") %>%
@@ -227,7 +240,7 @@ purrr::map2(var.exp.stats.nested.designations$data,
 
 
 #################
-### Figure 1 ###
+### Figure 1 ####
 #################
 AB <- cowplot::plot_grid(A + theme(legend.position = "none"),
                          B + theme(legend.position = "none"),

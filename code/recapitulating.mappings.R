@@ -155,7 +155,7 @@ multitrait.manplot <- ggplot() +
         legend.text = element_text(size = 8)) + 
   labs(x = "Genomic position (Mb)",
        y = expression(-log[10](italic(p))))
-ggsave(multitrait.manplot + guides(colour = guide_legend(nrow = 2)), filename = "plots/supp.fig.4.jpeg", width = 7.5, height = 4.75)
+ggsave(multitrait.manplot + guides(colour = guide_legend(nrow = 2)), filename = "plots/supp.fig.5.jpeg", width = 7.5, height = 4.75)
 
 
 ##############################
@@ -226,4 +226,4 @@ loco_inbred_trait.comps <- raw.qqs %>%
   labs(y = expression(Observed -log[10](italic(p))),
        x = expression(Expected -log[10](italic(p))))
 
-ggsave(loco_inbred_trait.comps, filename = "plots/supp.fig.5.jpeg", width = 7.5, height = 9)
+ggsave(loco_inbred_trait.comps, filename = "plots/supp.fig.6.jpeg", width = 7.5, height = 9)

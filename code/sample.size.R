@@ -76,7 +76,7 @@ AF.dist.plot <- AF.dists %>%
   scale_x_continuous(breaks = seq(0,0.5,0.1)) +
   labs(x = "Minor Allele Frequency",
        y = "Smoothed Density")
-ggsave(AF.dist.plot, filename = "plots/supp.fig.3.jpeg", width = 7.5, height = 3)
+ggsave(AF.dist.plot, filename = "plots/supp.fig.4.jpeg", width = 7.5, height = 3)
 
 
 #############################
