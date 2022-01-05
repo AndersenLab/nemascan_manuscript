@@ -56,10 +56,10 @@ supp.figure.1 <- dat %>%
 ggsave(supp.figure.1, filename = "plots/supp.fig.1.jpeg", height = 6, width = 6)
 
 
-#############################
-### Supplemental Figure 2 ###
-#############################
-algorithm.palette <- c("#E3B505", # EMMAx
+################
+### Figure 1 ###
+################
+algorithm.palette <- c("#E3B505", # EMMA
                        "#DCB8CB", # LMM EXACT
                        "#5B2E48", # LMM EXACT INBRED
                        "#87E5FD") # LMM EXACT LOCO
@@ -98,21 +98,23 @@ Power$h2 <- as.numeric(as.character(Power$h2))
 algorithm.A <- Power %>%
   dplyr::mutate(nQTL = paste0(nQTL, " QTL")) %>%
   ggplot(., mapping = aes(x = h2, y = mean.Power, colour = algorithm, group = algorithm )) + 
-  theme_bw() + 
-  geom_pointrange(aes(ymin=mean.Power-sd.bottom.Power, ymax=mean.Power+sd.top.Power), position = position_dodge(width = 0.03)) +
-  geom_point(position = position_dodge(width = 0.03)) +
-  geom_line(position = position_dodge(width = 0.03)) +
+  theme_bw(base_size = 12) + 
+  geom_line(position = position_dodge(width = 0.03), size = 0.25) +
+  geom_pointrange(aes(ymin=mean.Power-sd.bottom.Power, ymax=mean.Power+sd.top.Power), position = position_dodge(width = 0.03), size = 0.25) +
+  # geom_point(position = position_dodge(width = 0.03)) +
+  
   facet_grid(~nQTL, scales = "free_x", space = "free_x") + 
   scale_colour_manual(values = algorithm.palette, name = "Algorithm") + 
-  scale_y_continuous(breaks = seq(0,1,0.1), 
-                     labels = seq(0,1,0.1),
-                     limits = c(0,1)) + 
+  guides(colour = guide_legend(nrow = 2)) + 
+  scale_y_continuous(breaks = seq(0,1,0.25), labels = seq(0,1,0.25), limits = c(0,1)) + 
   theme(strip.text = element_text(size = 8),
         legend.position = "top", 
-        panel.grid.minor = element_blank(),
+        panel.grid = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
-        axis.title.x = element_blank()) +
+        axis.title.x = element_blank(),
+        legend.text = element_text(size = 10),
+        legend.title = element_text(size = 10)) +
   labs(y = "Power",
        x = expression(italic(h^2)))
 
@@ -139,15 +141,17 @@ algorithm.B <- AF %>%
   dplyr::mutate(nQTL = paste0(nQTL, " QTL")) %>%
   ggplot(., mapping = aes(x = h2, y = mean.AR, colour = algorithm, group = algorithm )) + 
   theme_bw() + 
-  geom_pointrange(aes(ymin=mean.AR-sd.bottom.AR, ymax=mean.AR+sd.top.AR), position = position_dodge(width = 0.03)) +
-  geom_point(position = position_dodge(width = 0.03)) +
-  geom_line(position = position_dodge(width = 0.03)) +
+  geom_line(position = position_dodge(width = 0.03), size = 0.25) +
+  geom_pointrange(aes(ymin=mean.AR-sd.bottom.AR, ymax=mean.AR+sd.top.AR), position = position_dodge(width = 0.03), size = 0.25) +
+  # geom_point(position = position_dodge(width = 0.03)) +
+  
   facet_grid(~nQTL, scales = "free_x", space = "free_x") + 
   scale_colour_manual(values = algorithm.palette, name = "Algorithm") + 
-  scale_y_continuous(breaks = seq(0,1,0.1), labels = seq(0,1,0.1), limits = c(0,1)) +
+  guides(colour = guide_legend(nrow = 2)) + 
+  scale_y_continuous(breaks = seq(0,1,0.25), labels = seq(0,1,0.25), limits = c(0,1)) +
   theme(strip.text = element_text(size = 8),
         legend.position = "top", 
-        panel.grid.minor = element_blank()) +
+        panel.grid = element_blank()) +
   labs(y = "FDR",
        x = expression(italic(h^2)))
 
@@ -159,8 +163,9 @@ plots <- cowplot::plot_grid(algorithm.A + theme(legend.position = "none",
                             labels = "AUTO",
                             ncol = 1, rel_heights = c(0.9,1))
 legends <- cowplot::get_legend(algorithm.A)
-supp.figure.2 <- cowplot::plot_grid(plots, legends, ncol = 1, rel_heights = c(9,1))
-ggsave(supp.figure.2 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/supp.fig.2.jpeg", height = 8, width = 8)
+figure.1 <- cowplot::plot_grid(plots, legends, ncol = 1, rel_heights = c(8,1))
+figure.1
+ggsave(figure.1 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.1.jpeg", height = 4, width = 4)
 
 
 #############################

@@ -59,9 +59,9 @@ colnames(supp.table.5) <- c("Population Type",colnames(supp.table.5)[2:length(co
 write.csv(supp.table.5, "tables/supplemental.table.5.csv", quote = F, row.names = F)
 
 
-#############################
-### Figure   ###
-#############################
+################
+### Figure 4 ###
+################
 power.var.exp.demo %<>%
   dplyr::mutate(max = mean.Power + sd.Power,
                 min = mean.Power - sd.Power,
@@ -72,7 +72,7 @@ power.var.exp.demo %<>%
                                        true = mean.Power,
                                        false = sd.Power)) %>%
   dplyr::mutate(detail = paste0(population.group," Strains; n = 144"))
-A.3 <- ggplot(power.var.exp.demo, mapping = aes(x = reorder(Sim.Var.Exp.Bin, bottom), y = mean.Power, 
+A <- ggplot(power.var.exp.demo, mapping = aes(x = reorder(Sim.Var.Exp.Bin, bottom), y = mean.Power, 
                                                 fill = detail,
                                                 group = detail)) + 
   theme_bw(base_size = 11) + 
@@ -114,7 +114,7 @@ MAF.by.VarExp.Bin.demo <- n144.df %>%
   dplyr::mutate(top = as.numeric(top)*100,
                 bottom = as.numeric(bottom)*100) %>%
   tidyr::unite("Sim.Var.Exp.Bin", top:bottom, sep = "-", remove = FALSE)
-B.3 <- ggplot(MAF.by.VarExp.Bin.demo, mapping = aes(x = reorder(Sim.Var.Exp.Bin,bottom), 
+B <- ggplot(MAF.by.VarExp.Bin.demo, mapping = aes(x = reorder(Sim.Var.Exp.Bin,bottom), 
                                                     y = Frequency,
                                                     fill = population.group)) + 
   theme_bw(base_size = 11) + 
@@ -137,7 +137,7 @@ AF.dists.demo <- n144.df %>%
   dplyr::rename(`Minor Allele Frequency` = Frequency, `Variance Explained by Simulated QTL (%)` = Simulated.QTL.VarExp) %>%
   dplyr::select(`Minor Allele Frequency`, `Variance Explained by Simulated QTL (%)`, detail) %>%
   tidyr::pivot_longer(cols = c(`Minor Allele Frequency`, `Variance Explained by Simulated QTL (%)`), names_to = "metric", values_to = "value")
-C.3 <- AF.dist.plot.demo <- AF.dists.demo %>%
+C <- AF.dist.plot.demo <- AF.dists.demo %>%
   dplyr::filter(metric == "Minor Allele Frequency") %>%
   ggplot(., mapping = aes(x = value, colour = detail)) +
   geom_density(size = 0.4, adjust = 0.5) +
@@ -154,12 +154,12 @@ C.3 <- AF.dist.plot.demo <- AF.dists.demo %>%
        x = "Minor Allele Frequency")
 
 
-A.legend <- cowplot::get_legend(A.3)
-pre.3 <- cowplot::plot_grid(A.3 + theme(axis.text.x = element_blank(),
+A.legend <- cowplot::get_legend(A)
+pre <- cowplot::plot_grid(A + theme(axis.text.x = element_blank(),
                                         axis.title.x = element_blank(),
                                         axis.ticks.x = element_blank(),
                                         legend.position = "none"), 
-                            B.3, 
-                            C.3, ncol = 1, align = 'v', axis = 'l', labels = "AUTO")
-fig3 <- cowplot::ggdraw(pre.3 + cowplot::draw_plot(A.legend, .5, .8, .6, 0))
-ggsave(fig3, filename = "plots/figure.3.jpeg", width = 7.5, height = 7)
+                            B, 
+                            C, ncol = 1, align = 'v', axis = 'l', labels = "AUTO")
+fig4 <- cowplot::ggdraw(pre + cowplot::draw_plot(A.legend, .5, .8, .6, 0))
+ggsave(fig4, filename = "plots/figure.4.jpeg", width = 7.5, height = 7)

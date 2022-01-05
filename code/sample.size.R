@@ -76,7 +76,7 @@ AF.dist.plot <- AF.dists %>%
   scale_x_continuous(breaks = seq(0,0.5,0.1)) +
   labs(x = "Minor Allele Frequency",
        y = "Smoothed Density")
-ggsave(AF.dist.plot, filename = "plots/supp.fig.4.jpeg", width = 7.5, height = 3)
+ggsave(AF.dist.plot, filename = "plots/supp.fig.3.jpeg", width = 7.5, height = 3)
 
 
 #############################
@@ -95,7 +95,7 @@ write.csv(supp.table.4, "tables/supplemental.table.4.csv", quote = F, row.names 
 
 
 #################
-### Figure 2  ###
+### Figure 3  ###
 #################
 power.var.exp %<>%
   dplyr::mutate(max = mean.Power + sd.Power,
@@ -137,7 +137,7 @@ A <- power.var.exp %>%
 A.legend <- cowplot::get_legend(A)
 A.plain <- cowplot::plot_grid(A + theme(legend.position = "none"))
 fig2 <- cowplot::ggdraw(A.plain + cowplot::draw_plot(A.legend, .5, .5, .6, 0))
-ggsave(fig2, filename = "plots/figure.2.jpeg", width = 7.5, height = 4)
+ggsave(fig2, filename = "plots/figure.3.jpeg", width = 7.5, height = 4)
 
 
 ################

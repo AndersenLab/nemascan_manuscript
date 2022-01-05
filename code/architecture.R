@@ -58,7 +58,7 @@ gamma.supp <- dat.group1000.150.aggregate.WI %>%
   theme(panel.grid = element_blank()) + 
   labs(x = "Simulated Variance Explained by QTL (%)",
        y = "Frequency")
-ggsave(gamma.supp, filename = "plots/supp.fig.3.jpeg", height = 5, width = 5)
+ggsave(gamma.supp, filename = "plots/supp.fig.2.jpeg", height = 5, width = 5)
 
 
 
@@ -80,7 +80,7 @@ designations[is.na(designations)] <- 0
 
 
 #################
-### Figure 1A ###
+### Figure 2A ###
 #################
 Power <- designations %>%
   dplyr::mutate(Detected = Detected.CV + CV.Not.Significant.In.Interval + False.Discovery,
@@ -124,7 +124,7 @@ A <- ggplot(Power, mapping = aes(x = nQTL, y = mean.Power, colour = h2,
 
 
 #################
-### Figure 1B ###
+### Figure 2B ###
 #################
 FDR <- designations %>%
   dplyr::mutate(Detected = Detected.CV + CV.Not.Significant.In.Interval + False.Discovery,
@@ -169,7 +169,7 @@ B <- ggplot(FDR, mapping = aes(x = nQTL, y = mean.Artefact , colour = h2,
 
 
 #################
-### Figure 1C ###
+### Figure 2C ###
 #################
 VE.plot <- dat.group1000.150.aggregate.WI %>%
   dplyr::filter(algorithm == "MIXED",
@@ -240,7 +240,7 @@ purrr::map2(var.exp.stats.nested.designations$data,
 
 
 #################
-### Figure 1 ####
+### Figure 2 ####
 #################
 AB <- cowplot::plot_grid(A + theme(legend.position = "none"),
                          B + theme(legend.position = "none"),
@@ -259,11 +259,11 @@ ABC <- cowplot::plot_grid(AB.2,
                             theme(legend.position = "bottom") + 
                             guides(colour = guide_legend(nrow = 2)), nrow = 2, 
                           rel_heights = c(1,2), labels = c("","C"))
-ggsave(plot = ABC + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.1.jpeg", height = 6, width = 7.5)
+ggsave(plot = ABC + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.2.jpeg", height = 6, width = 7.5)
 
 
 # Summary Tables of Plotted Values
-# Figure 1A
+# Figure 2A
 designations %>%
   dplyr::mutate(Detected = Detected.CV + CV.Not.Significant.In.Interval + False.Discovery,
                 Simulated = Detected.CV + CV.Not.Significant.In.Interval + Missed.CV) %>%
@@ -282,7 +282,7 @@ designations %>%
   tidyr::pivot_wider(names_from = h2, values_from = value)
 
 
-# Figure 1B
+# Figure 2B
 designations %>%
   dplyr::mutate(Detected = Detected.CV + CV.Not.Significant.In.Interval + False.Discovery,
                 Simulated = Detected.CV + CV.Not.Significant.In.Interval + Missed.CV) %>%

@@ -20,7 +20,7 @@ expected.P.val.dists <- function(x,y){
 
 
 ##################
-### Figure 5A  ###
+### Figure 6A  ###
 ##################
 genome <- data.table::fread("data/genome.bed.tsv") %>%
   dplyr::rename(CHROM = chr, startPOS = start, endPOS = stop) %>%
@@ -69,9 +69,9 @@ mapping.summary <- combined.significant.hits %>%
   labs(x = "Genomic position (Mb)")
 
 
-##################
-### Figure 5B  ###
-##################
+#################
+### Figure 6B ###
+#################
 unique.hits <- processed.nemascan.mappings %>%
   dplyr::select(CHROM, marker, POS, AF1, BETA, SE, P, algorithm, log10p, trait, BF, aboveBF, platform) %>%
   dplyr::distinct()
@@ -118,18 +118,18 @@ qq_platform <- ggplot(combined.exp.log10ps, mapping = aes(x = -log10(exp.P), y =
        x = expression(Expected -log[10](italic(p))))
 
 
-#################
-### Figure 5  ###
-#################
-fig5 <- cowplot::plot_grid(mapping.summary + theme(legend.position = "right"),
+################
+### Figure 6 ###
+################
+fig6 <- cowplot::plot_grid(mapping.summary + theme(legend.position = "right"),
                            qq_platform + theme(legend.position = "bottom"), 
                            ncol = 1,rel_heights = c(1,1), labels = "AUTO")
-ggsave(fig5, filename = "plots/figure.5.jpeg", width = 7.5, height = 5.5)
+ggsave(fig6, filename = "plots/figure.6.jpeg", width = 7.5, height = 5.5)
 
 
-##############################
-### Supplemental Figure 4  ###
-##############################
+#############################
+### Supplemental Figure 4 ###
+#############################
 combined.processed.mappings <- processed.cegwas.mappings %>%
   dplyr::full_join(processed.nemascan.mappings) %>%
   dplyr::select(CHROM, POS, log10p, trait, BF, aboveBF, platform) %>%
@@ -155,12 +155,12 @@ multitrait.manplot <- ggplot() +
         legend.text = element_text(size = 8)) + 
   labs(x = "Genomic position (Mb)",
        y = expression(-log[10](italic(p))))
-ggsave(multitrait.manplot + guides(colour = guide_legend(nrow = 2)), filename = "plots/supp.fig.5.jpeg", width = 7.5, height = 4.75)
+ggsave(multitrait.manplot + guides(colour = guide_legend(nrow = 2)), filename = "plots/supp.fig.4.jpeg", width = 7.5, height = 4.75)
 
 
-##############################
-### Supplemental Figure 5  ###
-##############################
+#############################
+### Supplemental Figure 5 ###
+#############################
 raw.abamectin.loco.qq <- expected.P.val.dists(raw.abamectin.loco, "Abamectin Resistance") %>%
   dplyr::select(marker, P, algorithm, exp.P, trait)
 raw.abamectin.inbred.qq <- expected.P.val.dists(raw.abamectin.inbred, "Abamectin Resistance")  %>%
@@ -226,4 +226,4 @@ loco_inbred_trait.comps <- raw.qqs %>%
   labs(y = expression(Observed -log[10](italic(p))),
        x = expression(Expected -log[10](italic(p))))
 
-ggsave(loco_inbred_trait.comps, filename = "plots/supp.fig.6.jpeg", width = 7.5, height = 9)
+ggsave(loco_inbred_trait.comps, filename = "plots/supp.fig.5.jpeg", width = 7.5, height = 9)

@@ -59,9 +59,9 @@ levels(FDR$Simulated.Region) <- c("Chromosome Arm","Chromosome Center")
 levels(FDR$Simulated.Divergence) <- c("Hyperdivergent Regions","All Other Loci")
 
 
-#################
-### Figure 4  ###
-#################
+################
+### Figure 5 ###
+################
 combined.metrics <- power %>%
   dplyr::full_join(., FDR)
 combined.performance.figure <- ggplot(combined.metrics) + 
@@ -106,8 +106,8 @@ stacked.trees <- cowplot::plot_grid(gg.divergent.tree +
                                     gg.swept.tree + 
                                       theme(plot.background = element_rect(fill = "white",colour = NA)), 
                                     ncol = 1, labels = c("B","C"))
-fig4 <- cowplot::plot_grid(combined.performance.figure,stacked.trees, ncol = 2, labels = c("A",""), rel_widths = c(1.8,1))
-ggsave(fig4 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.4.jpeg", width = 7.5, height = 4)
+fig5 <- cowplot::plot_grid(combined.performance.figure,stacked.trees, ncol = 2, labels = c("A",""), rel_widths = c(1.8,1))
+ggsave(fig5 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.5.jpeg", width = 7.5, height = 4)
 
 
 ##############
