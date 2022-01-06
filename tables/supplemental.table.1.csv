@@ -1,6 +1,6 @@
 Figure,Number of Simulated QTL per Trait,Trait Heritability (h2),Effect Distribution,Strain Set,Number of Strains,Simulated QTL Locations,Grouping Replicated,Approximate Replication per Group
-Supplemental Figure 2,1; 5,0.1; 0.2; 0.3; 0.4; 0.5; 0.6; 0.7; 0.8; 0.9,0.5-5,Hahnel et. al. 2018,203,Genome-wide,Heritability x Number of QTL,50
-Figure 1,1; 5; 10; 25; 50,0.2; 0.4; 0.6; 0.8,"Gamma (0.4,1.66)",CeNDR Strains,540,Genome-wide,Heritability x Number of QTL,100
-Figure 2,5,0.8,"Gamma (0.4,1.66)",Subsampled CeNDR Strains,100; 200; 300; 400; 500,Genome-wide,Subsampled Population,50
-Figure 3,5,0.8,"Gamma (0.4,1.66)",Swept Subsampled CeNDR Strains; Divergent Subsampled CeNDR Strains; Subsampled CeNDR Strains,144,Genome-wide,Subsampled Population,30
-Figure 4,1,0.2; 0.5; 0.8,Uniform,All Divergent Strains; Select Swept Strains,183; 182,Chromosome-Specific Arms and Centers; Population-specific hyperdivergent regions,Heritability x Strain Set x Chromosome Region x Divergence x Chromosome,100
+Figure 1,1; 5,0.1; 0.2; 0.3; 0.4; 0.5; 0.6; 0.7; 0.8; 0.9,0.5-5,Hahnel et. al. 2018,203,Genome-wide,Heritability x Number of QTL,50
+Figure 2,1; 5; 10; 25; 50,0.2; 0.4; 0.6; 0.8,"Gamma (0.4,1.66)",CeNDR Strains,540,Genome-wide,Heritability x Number of QTL,100
+Figure 3,5,0.8,"Gamma (0.4,1.66)",Subsampled CeNDR Strains,100; 200; 300; 400; 500,Genome-wide,Subsampled Population,50
+Figure 4,5,0.8,"Gamma (0.4,1.66)",Swept Subsampled CeNDR Strains; Divergent Subsampled CeNDR Strains; Subsampled CeNDR Strains,144,Genome-wide,Subsampled Population,30
+Figure 5,1,0.2; 0.5; 0.8,Uniform,All Divergent Strains; Select Swept Strains,183; 182,Chromosome-Specific Arms and Centers; Population-specific hyperdivergent regions,Heritability x Strain Set x Chromosome Region x Divergence x Chromosome,100
