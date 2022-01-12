@@ -58,7 +58,7 @@ gamma.supp <- dat.group1000.150.aggregate.WI %>%
   theme(panel.grid = element_blank()) + 
   labs(x = "Simulated Variance Explained by QTL (%)",
        y = "Frequency")
-ggsave(gamma.supp, filename = "plots/supp.fig.2.jpeg", height = 5, width = 5)
+ggsave(gamma.supp, filename = "plots/supp.fig.2.png", height = 5, width = 5)
 
 
 
@@ -259,7 +259,7 @@ ABC <- cowplot::plot_grid(AB.2,
                             theme(legend.position = "bottom") + 
                             guides(colour = guide_legend(nrow = 2)), nrow = 2, 
                           rel_heights = c(1,2), labels = c("","C"))
-ggsave(plot = ABC + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.2.jpeg", height = 6, width = 7.5)
+ggsave(plot = ABC + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.2.png", height = 6, width = 7.5)
 
 
 # Summary Tables of Plotted Values

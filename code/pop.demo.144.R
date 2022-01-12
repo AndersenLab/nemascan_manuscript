@@ -162,4 +162,4 @@ pre <- cowplot::plot_grid(A + theme(axis.text.x = element_blank(),
                             B, 
                             C, ncol = 1, align = 'v', axis = 'l', labels = "AUTO")
 fig4 <- cowplot::ggdraw(pre + cowplot::draw_plot(A.legend, .5, .8, .6, 0))
-ggsave(fig4, filename = "plots/figure.4.jpeg", width = 7.5, height = 7)
+ggsave(fig4, filename = "plots/figure.4.png", width = 7.5, height = 7)
