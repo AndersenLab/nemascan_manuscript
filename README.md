@@ -5,7 +5,7 @@ A central goal of evolutionary genetics in _Caenorhabditis elegans_ is to unders
 
 ## Code
 ### Required software:
-1. [R-v3.6.0](https://www.r-project.org/)
+1. [R-v4.0.4](https://www.r-project.org/)
 2. [R/tidyverse](https://www.tidyverse.org/)
 3. [R/magrittr](https://magrittr.tidyverse.org/)
 4. [R/cowplot](https://github.com/wilkelab/cowplot)
