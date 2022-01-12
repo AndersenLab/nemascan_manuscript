@@ -71,6 +71,7 @@ A central goal of evolutionary genetics in Caenorhabditis elegans is to understa
   **Inputs:**
   1. `File_S7.RData`
   2. `File_S8.RData`
+  3. `genome.bed.tsv`
 
   **Outputs:**
   1. Figure 6
