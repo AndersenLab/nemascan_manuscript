@@ -6,7 +6,45 @@ setwd(paste0(dirname(rstudioapi::getActiveDocumentContext()$path),"/.."))
 ###################################
 ### Sample Size Simulation Data ###
 ###################################
-load(file = "data/File_S3.RData")
+load(file = "data/File_S4.RData")
+load(file = "data/File_S5.RData")
+  
+dat <- simulation.metrics.df %>%
+  tidyr::separate(col = sim,
+                  into = c("nQTL","Rep","h2","MAF","effect_range","strain_set"), 
+                  sep = "_", remove = F) %>%
+  tidyr::separate(col = QTL,
+                  into = c("CHROM","POS"), 
+                  sep = ":", remove = F) %>%
+  dplyr::mutate(h2 = as.factor(h2),
+                nQTL = as.factor(nQTL),
+                POS = as.numeric(POS),
+                startPOS = as.numeric(startPOS),
+                peakPOS = as.numeric(peakPOS),
+                endPOS = as.numeric(endPOS),
+                interval.var.exp  = as.numeric(interval.var.exp),
+                Simulated.QTL.VarExp = as.numeric(Simulated.QTL.VarExp), 
+                peak_id = as.numeric(peak_id),
+                BETA = as.numeric(BETA),
+                Effect = as.numeric(Effect),
+                Frequency = as.numeric(Frequency),
+                # log10p = dplyr::if_else(Simulated == FALSE,
+                #                         true = interval.log10p,
+                #                         false = log10p), # false discoveries inherit the log10p value of the peak marker for the interval
+                # log10p = as.numeric(log10p),
+                interval_size = as.numeric(interval_size),
+                aboveBF = dplyr::case_when(aboveBF == 1 ~ TRUE, 
+                                           aboveBF == 0 ~ FALSE,
+                                           is.na(aboveBF) ~ TRUE), # false discoveries by definition exceed significance threshold
+                aboveBF = as.factor(aboveBF)) %>%
+  dplyr::filter(CHROM != 7)
+
+
+dat.population.features <- dat %>%
+  dplyr::full_join(., population.metrics.df)
+
+
+
 dat.population.features$pop.size <- factor(dat.population.features$pop.size, 
                                            levels = c("100","200","300","400","500"))
 pop.size.pal <- c("#8CDBCF","#BDDBD0","#CBC9AD","#656839","#71861D")
@@ -15,7 +53,6 @@ names(pop.size.pal) <- levels(dat.population.features$pop.size)
 
 
 designations <- dat.population.features %>%
-  dplyr::filter(algorithm == "MIXED") %>%
   droplevels() %>%
   dplyr::mutate(designation = case_when(Simulated == TRUE & Detected == TRUE & aboveBF == TRUE ~ "Detected.CV",
                                         Simulated == TRUE & Detected == FALSE & aboveBF == FALSE ~ "Missed.CV",
@@ -28,7 +65,7 @@ designations <- dat.population.features %>%
                   into = c("peak.CHROM","peak.POS"), 
                   sep = ":", remove = F) %>%
   dplyr::mutate(QTL.v.peak = abs(as.numeric(POS)-as.numeric(peak.POS))) %>%
-  dplyr::group_by(Sim.Var.Exp.Bin, nQTL, strain_set, designation, pop.size, pop.type) %>%
+  dplyr::group_by(Sim.Var.Exp.Bin, nQTL, strain_set, designation, pop.size) %>%
   dplyr::summarise(n = n()) %>%
   tidyr::pivot_wider(names_from = designation, values_from = n)
 designations[is.na(designations)] <- 0
@@ -38,7 +75,7 @@ power.var.exp <- designations %>%
                 # normally would also add in False.Discovery, but figure is focusing on simulated QTL and leaving out doesn't change Power calculation
                 Simulated = Detected.CV + CV.Not.Significant.In.Interval + Missed.CV,
                 Power = Detected.CV/Simulated) %>%
-  dplyr::group_by(Sim.Var.Exp.Bin, pop.size, pop.type) %>%
+  dplyr::group_by(Sim.Var.Exp.Bin, pop.size) %>%
   dplyr::summarise(mean.Power = mean(Power),
                    sd.Power = sd(Power)) %>%
   dplyr::mutate(Sim.Var.Exp.Bin = gsub(as.character(Sim.Var.Exp.Bin), pattern = "\\(", replacement = "") %>%
@@ -56,13 +93,13 @@ power.var.exp <- designations %>%
 AF.dists <- dat.population.features %>%
   dplyr::filter(Simulated == TRUE,
                 !duplicated(QTL)) %>%
-  tidyr::unite("detail", c(pop.type, pop.size), remove = F, sep = " Strains; n = ") %>%
+  tidyr::unite("detail", pop.size, remove = F, sep = " Strains; n = ") %>%
   dplyr::mutate(detail = as.factor(detail))
 pop.size.pal.B <- pop.size.pal
 names(pop.size.pal.B) <- levels(AF.dists$detail)
 
 AF.dist.plot <- AF.dists %>%
-  tidyr::unite("detail", c(pop.type, pop.size), remove = F, sep = " Strains; n = ") %>%
+  tidyr::unite("detail", pop.size, remove = F, sep = " Strains; n = ") %>%
   ggplot(., mapping = aes(x = Frequency, fill = detail)) +
   geom_density(alpha = 0.6, adjust = 0.8, position = "stack") + 
   theme_bw(base_size = 12) +
@@ -76,7 +113,7 @@ AF.dist.plot <- AF.dists %>%
   scale_x_continuous(breaks = seq(0,0.5,0.1)) +
   labs(x = "Minor Allele Frequency",
        y = "Smoothed Density")
-ggsave(AF.dist.plot, filename = "plots/supp.fig.3.png", width = 7.5, height = 3)
+ggsave(AF.dist.plot, filename = "plots/supp.fig.4.png", width = 7.5, height = 3)
 
 
 #############################
@@ -84,11 +121,11 @@ ggsave(AF.dist.plot, filename = "plots/supp.fig.3.png", width = 7.5, height = 3)
 #############################
 supp.table.4 <- power.var.exp %>%
   dplyr::ungroup() %>%
-  dplyr::select(pop.size, pop.type, Sim.Var.Exp.Bin, mean.Power, sd.Power) %>%
+  dplyr::select(pop.size, Sim.Var.Exp.Bin, mean.Power, sd.Power) %>%
   dplyr::mutate(power = if_else(is.na(sd.Power), 
                                 true = as.character(round(mean.Power,2)), 
                                 false = paste(round(mean.Power,2), round(sd.Power,2), sep = " ± "))) %>%
-  dplyr::select(-c(mean.Power, sd.Power, pop.type)) %>%
+  dplyr::select(-c(mean.Power, sd.Power)) %>%
   tidyr::pivot_wider(names_from = Sim.Var.Exp.Bin, values_from = power)
 colnames(supp.table.4) <- c("Sample Size",colnames(supp.table.4)[2:length(colnames(supp.table.4))])
 write.csv(supp.table.4, "tables/supplemental.table.4.csv", quote = F, row.names = F)
@@ -144,13 +181,12 @@ ggsave(fig2, filename = "plots/figure.3.png", width = 7.5, height = 4)
 ### Table 1  ###
 ################
 overall.metrics <- dat.population.features %>%
-  dplyr::filter(algorithm == "MIXED") %>%
   droplevels() %>%
   dplyr::mutate(designation = case_when(Simulated == TRUE & Detected == TRUE & aboveBF == TRUE ~ "Detected.CV",
                                         Simulated == TRUE & Detected == FALSE & aboveBF == FALSE ~ "Missed.CV",
                                         Simulated == TRUE & Detected == TRUE & aboveBF == FALSE ~ "CV.Not.Significant.In.Interval",
                                         Simulated == FALSE & Detected == TRUE & aboveBF == TRUE ~ "False.Discovery")) %>%
-  dplyr::group_by(strain_set, designation, pop.size, pop.type, Rep) %>%
+  dplyr::group_by(strain_set, designation, pop.size, Rep) %>%
   dplyr::summarise(n = n()) %>%
   tidyr::pivot_wider(names_from = designation, values_from = n)
 overall.metrics[is.na(overall.metrics)] <- 0

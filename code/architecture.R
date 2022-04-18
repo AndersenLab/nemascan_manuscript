@@ -9,8 +9,8 @@ setwd(paste0(dirname(rstudioapi::getActiveDocumentContext()$path),"/.."))
 ####################################
 
 # Mapping Results, Default settings: Group = 1000 bp, CI = +150 markers
-load(file = "data/File_S2.RData")
-dat.group1000.150.aggregate.WI <- simulation.metrics.df %>%
+load(file = "data/File_S3.RData")
+dat.inbred.pca <- simulation.metrics.df %>%
   tidyr::separate(col = sim,
                   into = c("nQTL","Rep","h2","MAF","effect_range","strain_set"), 
                   sep = "_", remove = F) %>%
@@ -38,19 +38,17 @@ dat.group1000.150.aggregate.WI <- simulation.metrics.df %>%
                                            aboveBF == 0 ~ FALSE,
                                            is.na(aboveBF) ~ TRUE), # false discoveries by definition exceed significance threshold
                 aboveBF = as.factor(aboveBF)) %>%
-  dplyr::filter(!c(Detected == FALSE & aboveBF == TRUE),
-                CHROM != 7)
-dat.group1000.150.aggregate.WI$nQTL <- factor(dat.group1000.150.aggregate.WI$nQTL, 
-                                              levels = c("1","5","10","25","50"))
+  dplyr::filter(CHROM != 7)
+dat.inbred.pca$nQTL <- factor(dat.inbred.pca$nQTL, 
+                              levels = c("1","5","10","25","50"))
 
 h2.pal <- wes_palette("Darjeeling1", 4)[c(1,4,3,2)]
 nQTL.pal <- wes_palette("Darjeeling2", 5)
 options(dplyr.summarise.inform = FALSE)
 
 
-gamma.supp <- dat.group1000.150.aggregate.WI %>%
-  dplyr::filter(algorithm == "MIXED",
-                Simulated == TRUE) %>%
+gamma.supp <- dat.inbred.pca %>%
+  dplyr::filter(Simulated == TRUE) %>%
   ggplot(., mapping = aes(x = Simulated.QTL.VarExp*100)) + 
   theme_bw() + 
   geom_histogram(bins = 100) + 
@@ -58,12 +56,11 @@ gamma.supp <- dat.group1000.150.aggregate.WI %>%
   theme(panel.grid = element_blank()) + 
   labs(x = "Simulated Variance Explained by QTL (%)",
        y = "Frequency")
-ggsave(gamma.supp, filename = "plots/supp.fig.2.png", height = 5, width = 5)
+ggsave(gamma.supp, filename = "plots/supp.fig.3.png", height = 5, width = 5)
 
 
 
-designations <- dat.group1000.150.aggregate.WI %>%
-  dplyr::filter(algorithm == "MIXED") %>%
+designations <- dat.inbred.pca %>%
   droplevels() %>%
   dplyr::mutate(designation = case_when(Simulated == TRUE & Detected == TRUE & aboveBF == TRUE ~ "Detected.CV",
                                         Simulated == TRUE & Detected == FALSE & aboveBF == FALSE ~ "Missed.CV",
@@ -102,6 +99,18 @@ Power <- designations %>%
                                true = (0-mean.Power)*-1, 
                                false = sd.Power)) %>%
   dplyr::select(-a,-b)
+
+# aggregated across heritability
+designations %>%
+  dplyr::mutate(Detected = Detected.CV + CV.Not.Significant.In.Interval + False.Discovery,
+                Simulated = Detected.CV + CV.Not.Significant.In.Interval + Missed.CV) %>%
+  dplyr::filter(Simulated != 0) %>%
+  dplyr::mutate(Power = Detected.CV/Simulated,
+                Artefact.Rate = False.Discovery/Detected,
+                Detected.CV.NS.Rate = CV.Not.Significant.In.Interval/Detected) %>%
+  dplyr::group_by(algorithm, nQTL) %>%
+  dplyr::summarise(mean.Power = mean(Power),
+                   sd.Power = sd(Power))
 
 
 A <- ggplot(Power, mapping = aes(x = nQTL, y = mean.Power, colour = h2, 
@@ -148,6 +157,18 @@ FDR <- designations %>%
                                false = sd.Artefact.Rate)) %>%
   dplyr::select(-a,-b)
 
+designations %>%
+  dplyr::mutate(Detected = Detected.CV + CV.Not.Significant.In.Interval + False.Discovery,
+                Simulated = Detected.CV + CV.Not.Significant.In.Interval + Missed.CV) %>%
+  dplyr::filter(Simulated != 0) %>%
+  dplyr::mutate(Power = Detected.CV/Simulated,
+                Artefact.Rate = False.Discovery/Detected,
+                Detected.CV.NS.Rate = CV.Not.Significant.In.Interval/Detected) %>%
+  dplyr::filter(Detected != 0) %>%
+  dplyr::group_by(algorithm, nQTL) %>%
+  dplyr::summarise(mean.Artefact = mean(Artefact.Rate),
+                   sd.Artefact.Rate = sd(Artefact.Rate))
+
 
 B <- ggplot(FDR, mapping = aes(x = nQTL, y = mean.Artefact , colour = h2, 
                                group = interaction(h2,algorithm))) +
@@ -171,9 +192,8 @@ B <- ggplot(FDR, mapping = aes(x = nQTL, y = mean.Artefact , colour = h2,
 #################
 ### Figure 2C ###
 #################
-VE.plot <- dat.group1000.150.aggregate.WI %>%
-  dplyr::filter(algorithm == "MIXED",
-                Simulated == TRUE) %>% # true positives
+VE.plot <- dat.inbred.pca %>%
+  dplyr::filter(Simulated == TRUE) %>% # true positives
   droplevels() %>%
   dplyr::mutate(designation = as.factor(case_when(aboveBF == TRUE & top.hit == TRUE ~ "Top Within Region",
                                                   aboveBF == TRUE & top.hit == FALSE ~ "Significant",
@@ -189,7 +209,7 @@ C <-  ggplot(VE.plot, mapping = aes(x = designation, y = Simulated.QTL.VarExp*10
   theme_bw(base_size = 11) +
   geom_boxplot(outlier.alpha = 0.1) + 
   facet_grid(nQTL~h2, scales = "free", space = "free") + 
-  scale_colour_manual(values = c("royalblue","dodgerblue","cadetblue4","darkred"), name = "Association Type") + 
+  scale_colour_manual(values = wes_palette(name = "Moonrise2"), name = "Association Type") + 
   theme(panel.grid = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -300,4 +320,14 @@ designations %>%
   dplyr::select(nQTL, h2, value) %>%
   tidyr::pivot_wider(names_from = h2, values_from = value)
 
+VE.plot %>%
+  dplyr::filter(designation == "Top Within Region") %>%
+  dplyr::group_by(h2, nQTL) %>%
+  dplyr::summarise(median = median(Simulated.QTL.VarExp*100)) %>%
+  dplyr::arrange(median)
 
+VE.plot %>%
+  dplyr::filter(designation == "Causal Variant Not Detected") %>%
+  dplyr::group_by(h2, nQTL) %>%
+  dplyr::summarise(median = median(Simulated.QTL.VarExp*100)) %>%
+  dplyr::arrange(median)

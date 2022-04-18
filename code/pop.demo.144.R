@@ -6,12 +6,57 @@ setwd(paste0(dirname(rstudioapi::getActiveDocumentContext()$path),"/.."))
 #####################################################################
 ### Subsampled, Swept, and Divergent Strain Comparisons @ n = 144 ###
 #####################################################################
-load(file = "data/File_S4.RData")
+load(file = "data/File_S6.RData")
+load(file = "data/File_S7.RData")
+
+n144.df <- simulation.metrics.df %>%
+  tidyr::separate(col = sim,
+                  into = c("nQTL","Rep","h2","MAF","effect_range","strain_set"), 
+                  sep = "_", remove = F) %>%
+  tidyr::separate(col = QTL,
+                  into = c("CHROM","POS"), 
+                  sep = ":", remove = F) %>%
+  dplyr::mutate(h2 = as.factor(h2),
+                nQTL = as.factor(nQTL),
+                POS = as.numeric(POS),
+                startPOS = as.numeric(startPOS),
+                peakPOS = as.numeric(peakPOS),
+                endPOS = as.numeric(endPOS),
+                interval.var.exp  = as.numeric(interval.var.exp),
+                Simulated.QTL.VarExp = as.numeric(Simulated.QTL.VarExp), 
+                peak_id = as.numeric(peak_id),
+                BETA = as.numeric(BETA),
+                Effect = as.numeric(Effect),
+                Frequency = as.numeric(Frequency),
+                # log10p = dplyr::if_else(Simulated == FALSE,
+                #                         true = interval.log10p,
+                #                         false = log10p), # false discoveries inherit the log10p value of the peak marker for the interval
+                # log10p = as.numeric(log10p),
+                interval_size = as.numeric(interval_size),
+                aboveBF = dplyr::case_when(aboveBF == 1 ~ TRUE, 
+                                           aboveBF == 0 ~ FALSE,
+                                           is.na(aboveBF) ~ TRUE), # false discoveries by definition exceed significance threshold
+                aboveBF = as.factor(aboveBF)) %>%
+  dplyr::filter(!c(Detected == FALSE & aboveBF == TRUE),
+                CHROM != 7)
+
+population.metrics.df[is.na(population.metrics.df)] <- 0
+curated.population.metrics.df <- population.metrics.df %>%
+  dplyr::select(-pct.population.swept) %>%
+  dplyr::mutate(sweptI = I > 0.4,
+                sweptIV = IV > 0.4,
+                sweptV = V > 0.4,
+                sweptX = X > 0.4) %>%
+  tidyr::unite("sweptchroms",c(sweptI,sweptIV,sweptV,sweptX)) %>%
+  dplyr::mutate(population.group = case_when(sweptchroms == "TRUE_TRUE_TRUE_TRUE" ~ "Swept",
+                                             sweptchroms == "FALSE_FALSE_FALSE_FALSE" ~ "Divergent",
+                                             TRUE ~ "Subsampled"))
+
+
+
 
 designations.demo <- n144.df %>%
-  dplyr::filter(algorithm == "MIXED",
-                h2 == 0.8) %>%
-  droplevels() %>%
+  dplyr::full_join(.,curated.population.metrics.df) %>%
   dplyr::mutate(designation = case_when(Simulated == TRUE & Detected == TRUE & aboveBF == TRUE ~ "Detected.CV",
                                         Simulated == TRUE & Detected == FALSE & aboveBF == FALSE ~ "Missed.CV",
                                         Simulated == TRUE & Detected == TRUE & aboveBF == FALSE ~ "CV.Not.Significant.In.Interval",
@@ -97,9 +142,7 @@ A <- ggplot(power.var.exp.demo, mapping = aes(x = reorder(Sim.Var.Exp.Bin, botto
 
 
 MAF.by.VarExp.Bin.demo <- n144.df %>%
-  dplyr::filter(algorithm == "MIXED",
-                h2 == 0.8) %>%
-  droplevels() %>%
+  dplyr::full_join(.,curated.population.metrics.df) %>%
   dplyr::mutate(designation = case_when(Simulated == TRUE & Detected == TRUE & aboveBF == TRUE ~ "Detected.CV",
                                         Simulated == TRUE & Detected == FALSE & aboveBF == FALSE ~ "Missed.CV",
                                         Simulated == TRUE & Detected == TRUE & aboveBF == FALSE ~ "CV.Not.Significant.In.Interval",
@@ -130,15 +173,18 @@ B <- ggplot(MAF.by.VarExp.Bin.demo, mapping = aes(x = reorder(Sim.Var.Exp.Bin,bo
 
 
 AF.dists.demo <- n144.df %>%
-  dplyr::filter(Simulated == TRUE,
-                h2 == 0.8) %>%
+  dplyr::full_join(.,curated.population.metrics.df) %>%
+  dplyr::filter(Simulated == TRUE) %>%
   dplyr::mutate(detail = paste0(population.group," Strains; n = 144")) %>%
   dplyr::mutate(detail = as.factor(detail)) %>%
-  dplyr::rename(`Minor Allele Frequency` = Frequency, `Variance Explained by Simulated QTL (%)` = Simulated.QTL.VarExp) %>%
-  dplyr::select(`Minor Allele Frequency`, `Variance Explained by Simulated QTL (%)`, detail) %>%
+  dplyr::rename(`Minor Allele Frequency` = Frequency, 
+                `Variance Explained by Simulated QTL (%)` = Simulated.QTL.VarExp) %>%
+  dplyr::select(`Minor Allele Frequency`, 
+                `Variance Explained by Simulated QTL (%)`, detail) %>%
   tidyr::pivot_longer(cols = c(`Minor Allele Frequency`, `Variance Explained by Simulated QTL (%)`), names_to = "metric", values_to = "value")
-C <- AF.dist.plot.demo <- AF.dists.demo %>%
-  dplyr::filter(metric == "Minor Allele Frequency") %>%
+C <- AF.dists.demo %>%
+  dplyr::filter(metric == "Minor Allele Frequency",
+                ) %>%
   ggplot(., mapping = aes(x = value, colour = detail)) +
   geom_density(size = 0.4, adjust = 0.5) +
   theme_bw(base_size = 11) +

@@ -2,11 +2,13 @@ require(tidyverse)
 require(cowplot)
 require(rstatix)
 setwd(paste0(dirname(rstudioapi::getActiveDocumentContext()$path),"/.."))
+
 #################################
 ### Algorithm Simulation Data ###
 #################################
 
 load(file = "data/File_S1.RData") # EMMA, Algorithm Sims
+load(file = "data/File_S2.RData") # Algorithm Genomic Inflation
 dat <- simulation.metrics.df %>%
   tidyr::separate(col = sim,
                   into = c("nQTL","Rep","h2","MAF","effect_range","strain_set"), 
@@ -38,12 +40,18 @@ dat <- simulation.metrics.df %>%
   dplyr::filter(!c(Detected == FALSE & aboveBF == TRUE),
                 CHROM != 7, 
                 algorithm != "LMM-EXACT-INBRED-LOCO")
+dat$algorithm <- as.factor(dat$algorithm)
+levels(dat$algorithm) <- c("EMMA",
+                           "fastGWA-lmm-exact",
+                           "fastGWA-lmm-exact-INBRED",
+                           "fastGWA-lmm-exact-LOCO")
+
 
 
 #############################
 ### Supplemental Figure 1 ###
 #############################
-supp.figure.1 <- dat %>%
+supp.figure.2 <- dat %>%
   dplyr::filter(Simulated == TRUE) %>%
   dplyr::mutate(nQTL = paste0(nQTL," QTL")) %>%
   ggplot(., mapping = aes(x = abs(Effect))) +
@@ -53,16 +61,20 @@ supp.figure.1 <- dat %>%
   theme(legend.position = "none")+
   labs(x = "Assigned QTL Effect Magnitude",
        y = "Frequency of Causal Variants")
-ggsave(supp.figure.1, filename = "plots/supp.fig.1.png", height = 6, width = 6)
+ggsave(supp.figure.2, filename = "plots/supp.fig.2.png", height = 6, width = 6)
 
 
 ################
 ### Figure 1 ###
 ################
-algorithm.palette <- c("#E3B505", # EMMA
-                       "#DCB8CB", # LMM EXACT
-                       "#5B2E48", # LMM EXACT INBRED
-                       "#87E5FD") # LMM EXACT LOCO
+algorithm.palette <- c("#87E5FD", 
+                       "#C3F2FE",
+                       "#5B2E48", 
+                       "#C185A8",
+                       "#E3B505", # EMMA
+                       "#DCB8CB") 
+# names(algorithm.palette) <- unique(summarizd.all.gifs$ALGORITHM)
+names(algorithm.palette) <- c("fastGWA-lmm-exact-LOCO","fastGWA-lmm-exact-LOCO-PCA","fastGWA-lmm-exact-INBRED","fastGWA-lmm-exact-INBRED-PCA","EMMA","fastGWA-lmm-exact")
 
 # Power and FDR calculation
 designations <- dat %>%
@@ -98,23 +110,23 @@ Power$h2 <- as.numeric(as.character(Power$h2))
 algorithm.A <- Power %>%
   dplyr::mutate(nQTL = paste0(nQTL, " QTL")) %>%
   ggplot(., mapping = aes(x = h2, y = mean.Power, colour = algorithm, group = algorithm )) + 
-  theme_bw(base_size = 12) + 
+  theme_bw(base_size = 10) + 
   geom_line(position = position_dodge(width = 0.03), size = 0.25) +
   geom_pointrange(aes(ymin=mean.Power-sd.bottom.Power, ymax=mean.Power+sd.top.Power), position = position_dodge(width = 0.03), size = 0.25) +
   # geom_point(position = position_dodge(width = 0.03)) +
   
-  facet_grid(~nQTL, scales = "free_x", space = "free_x") + 
+  facet_grid(~nQTL, scales = "free", space = "free") + 
   scale_colour_manual(values = algorithm.palette, name = "Algorithm") + 
-  guides(colour = guide_legend(nrow = 2)) + 
-  scale_y_continuous(breaks = seq(0,1,0.25), labels = seq(0,1,0.25), limits = c(0,1)) + 
+  guides(colour = guide_legend(ncol = 1, title.position = "top", title.hjust = 0.5)) + 
+  # scale_y_continuous(breaks = seq(0,1,0.25), labels = seq(0,1,0.25), limits = c(0,1)) + 
   theme(strip.text = element_text(size = 8),
-        legend.position = "top", 
+        legend.position = "right", 
         panel.grid = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank(),
-        legend.text = element_text(size = 10),
-        legend.title = element_text(size = 10)) +
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 8)) +
   labs(y = "Power",
        x = expression(italic(h^2)))
 
@@ -140,15 +152,15 @@ AF$h2 <- as.numeric(as.character(AF$h2))
 algorithm.B <- AF %>%
   dplyr::mutate(nQTL = paste0(nQTL, " QTL")) %>%
   ggplot(., mapping = aes(x = h2, y = mean.AR, colour = algorithm, group = algorithm )) + 
-  theme_bw() + 
+  theme_bw(base_size = 10) + 
   geom_line(position = position_dodge(width = 0.03), size = 0.25) +
   geom_pointrange(aes(ymin=mean.AR-sd.bottom.AR, ymax=mean.AR+sd.top.AR), position = position_dodge(width = 0.03), size = 0.25) +
   # geom_point(position = position_dodge(width = 0.03)) +
   
-  facet_grid(~nQTL, scales = "free_x", space = "free_x") + 
+  facet_grid(~nQTL, scales = "free", space = "free") + 
   scale_colour_manual(values = algorithm.palette, name = "Algorithm") + 
   guides(colour = guide_legend(nrow = 2)) + 
-  scale_y_continuous(breaks = seq(0,1,0.25), labels = seq(0,1,0.25), limits = c(0,1)) +
+  # scale_y_continuous(breaks = seq(0,1,0.25), labels = seq(0,1,0.25), limits = c(0,1)) +
   theme(strip.text = element_text(size = 8),
         legend.position = "top", 
         panel.grid = element_blank()) +
@@ -156,16 +168,53 @@ algorithm.B <- AF %>%
        x = expression(italic(h^2)))
 
 
-plots <- cowplot::plot_grid(algorithm.A + theme(legend.position = "none",
+all.gifs.df <- all.gifs %>%
+  tidyr::separate(col = SIM,
+                  into = c("nQTL","Rep","h2","MAF","effect_range","strain_set"), 
+                  sep = "_", remove = F)
+summarizd.all.gifs <- all.gifs.df %>%
+  dplyr::group_by(nQTL, h2, ALGORITHM) %>%
+  dplyr::summarise(mean.gif = mean(GIF),
+                   sd.gif = sd(GIF),
+                   n = n()) %>%
+  dplyr::mutate(ALGORITHM = gsub(ALGORITHM, pattern = "_", replacement = "-"),
+                ALGORITHM = paste0("LMM-EXACT-", ALGORITHM))
+summarizd.all.gifs$ALGORITHM <- as.factor(summarizd.all.gifs$ALGORITHM)
+levels(summarizd.all.gifs$ALGORITHM) <- c("fastGWA-lmm-exact-INBRED",
+                                          "fastGWA-lmm-exact-INBRED-PCA",
+                                          "fastGWA-lmm-exact-LOCO",
+                                          "fastGWA-lmm-exact-LOCO-PCA")
+
+algorithm.C <- ggplot() + 
+  theme_bw(base_size = 10) + 
+  geom_hline(yintercept = 1, linetype = 3) + 
+  geom_pointrange(data = summarizd.all.gifs, mapping = aes(x = h2, y = mean.gif,
+                                                           ymin = mean.gif-sd.gif, 
+                                                           ymax = mean.gif+sd.gif,
+                                                           colour = ALGORITHM, 
+                                                           fill = ALGORITHM),
+                  position = position_dodge(width = 0.3), shape = 21) + 
+  scale_color_manual(values = algorithm.palette, name = "Algorithm") +
+  scale_fill_manual(values = algorithm.palette, name = "Algorithm") + 
+  theme(panel.grid = element_blank()) + 
+  labs(x = expression(italic(h^2)),
+       y = expression(λ[GC]))
+pre.plots <- cowplot::plot_grid(algorithm.A + theme(legend.position = "none",
                                                 plot.background = element_rect(fill = "white",colour = NA)),
                             algorithm.B + theme(legend.position = "none",
                                                 plot.background = element_rect(fill = "white",colour = NA)),
                             labels = "AUTO",
                             ncol = 1, rel_heights = c(0.9,1))
 legends <- cowplot::get_legend(algorithm.A)
-figure.1 <- cowplot::plot_grid(plots, legends, ncol = 1, rel_heights = c(8,1))
+pre.plots.2 <- cowplot::plot_grid(algorithm.C + theme(legend.position = "none",
+                                                plot.background = element_rect(fill = "white",colour = NA)),
+                                  legends,
+                                  labels = c("C",""),
+                                  ncol = 1, rel_heights = c(1,0.8))
+
+figure.1 <- cowplot::plot_grid(pre.plots, pre.plots.2, ncol = 2)
 figure.1
-ggsave(figure.1 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.1.png", height = 4, width = 4)
+ggsave(figure.1 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.1.png", height = 4, width = 7)
 
 
 #############################
@@ -281,3 +330,8 @@ algorithm.posthoc.tests.FDR <-KW.FDR.dunn.tests %>%
   dplyr::select(h2, nQTL, everything())
 colnames(algorithm.posthoc.tests.FDR) <- c("Trait Heritability","Number of Simulated QTL","Group 1","Group 2","n1","n2","Adjusted p-value","Significance")
 write.csv(algorithm.posthoc.tests.FDR, "tables/supplemental.table.3.csv", row.names = F, quote = F)
+
+## Genomic Inflation Stats ##
+gifs.aov <- aov(all.gifs.df, formula = GIF ~ ALGORITHM)
+TukeyHSD(gifs.aov)
+
