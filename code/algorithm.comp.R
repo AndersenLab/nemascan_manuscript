@@ -67,15 +67,6 @@ ggsave(supp.figure.2, filename = "plots/supp.fig.2.png", height = 6, width = 6)
 ################
 ### Figure 1 ###
 ################
-algorithm.palette <- c("#87E5FD", 
-                       "#C3F2FE",
-                       "#5B2E48", 
-                       "#C185A8",
-                       "#E3B505", # EMMA
-                       "#DCB8CB") 
-# names(algorithm.palette) <- unique(summarizd.all.gifs$ALGORITHM)
-names(algorithm.palette) <- c("fastGWA-lmm-exact-LOCO","fastGWA-lmm-exact-LOCO-PCA","fastGWA-lmm-exact-INBRED","fastGWA-lmm-exact-INBRED-PCA","EMMA","fastGWA-lmm-exact")
-
 # Power and FDR calculation
 designations <- dat %>%
   dplyr::mutate(designation = case_when(Simulated == TRUE & Detected == TRUE & aboveBF == TRUE ~ "Detected.CV",
@@ -107,6 +98,18 @@ Power <- designations %>%
   dplyr::mutate(sd.top.Power = if_else(a < sd.Power, true = a, false = sd.Power)) %>%
   dplyr::mutate(sd.bottom.Power = if_else(mean.Power-sd.Power < 0, true = (0-mean.Power)*-1, false = sd.Power))
 Power$h2 <- as.numeric(as.character(Power$h2))
+
+
+algorithm.palette <- c("#F94144", 
+                       "#F9C74F",
+                       "#43AA8B",
+                       "#277DA1", 
+                       "grey50", # EMMA
+                       "#000000") 
+# names(algorithm.palette) <- unique(summarizd.all.gifs$ALGORITHM)
+names(algorithm.palette) <- c("fastGWA-lmm-exact-LOCO","fastGWA-lmm-exact-LOCO-PCA",
+                              "fastGWA-lmm-exact-INBRED","fastGWA-lmm-exact-INBRED-PCA",
+                              "EMMA","fastGWA-lmm-exact")
 algorithm.A <- Power %>%
   dplyr::mutate(nQTL = paste0(nQTL, " QTL")) %>%
   ggplot(., mapping = aes(x = h2, y = mean.Power, colour = algorithm, group = algorithm )) + 
