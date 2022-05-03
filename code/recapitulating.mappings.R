@@ -167,6 +167,7 @@ fig6 <- cowplot::plot_grid(mapping.summary + theme(legend.position = "right"),
                            qq_platform + theme(legend.position = "none"), 
                            ncol = 1,rel_heights = c(1,1), labels = "AUTO")
 ggsave(fig6, filename = "plots/figure.6.png", width = 7.5, height = 7)
+ggsave(fig6, filename = "plots/figure.6.pdf", width = 7.5, height = 7)
 
 
 #############################

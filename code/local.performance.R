@@ -214,6 +214,7 @@ stacked.trees <- cowplot::plot_grid(gg.divergent.tree +
                                     ncol = 1, labels = c("B","C"))
 fig5 <- cowplot::plot_grid(combined.performance.figure.3,stacked.trees, ncol = 2, labels = c("A",""), rel_widths = c(2,1))
 ggsave(fig5 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.5.png", width = 7, height = 4)
+ggsave(fig5 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.5.pdf", width = 7, height = 4)
 
 
 ##############

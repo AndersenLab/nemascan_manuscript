@@ -173,8 +173,9 @@ A <- power.var.exp %>%
        y = "Power")
 A.legend <- cowplot::get_legend(A)
 A.plain <- cowplot::plot_grid(A + theme(legend.position = "none"))
-fig2 <- cowplot::ggdraw(A.plain + cowplot::draw_plot(A.legend, .5, .5, .6, 0))
-ggsave(fig2, filename = "plots/figure.3.png", width = 7.5, height = 4)
+fig3 <- cowplot::ggdraw(A.plain + cowplot::draw_plot(A.legend, .5, .5, .6, 0))
+ggsave(fig3, filename = "plots/figure.3.png", width = 7.5, height = 4)
+ggsave(fig3, filename = "plots/figure.3.pdf", width = 7.5, height = 4)
 
 
 ################

@@ -218,6 +218,7 @@ pre.plots.2 <- cowplot::plot_grid(algorithm.C + theme(legend.position = "none",
 figure.1 <- cowplot::plot_grid(pre.plots, pre.plots.2, ncol = 2)
 figure.1
 ggsave(figure.1 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.1.png", height = 4, width = 7)
+ggsave(figure.1 + theme(plot.background = element_rect(fill = "white",colour = NA)), filename = "plots/figure.1.pdf", height = 4, width = 7)
 
 
 #############################
